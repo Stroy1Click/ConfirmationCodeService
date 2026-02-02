@@ -1,8 +1,8 @@
 package ru.stroy1click.confirmationcode.service;
 
-import ru.stroy1click.confirmationcode.model.CodeVerificationRequest;
-import ru.stroy1click.confirmationcode.model.CreateConfirmationCodeRequest;
-import ru.stroy1click.confirmationcode.model.UpdatePasswordRequest;
+import ru.stroy1click.confirmationcode.dto.CodeVerificationRequest;
+import ru.stroy1click.confirmationcode.dto.CreateConfirmationCodeRequest;
+import ru.stroy1click.confirmationcode.dto.UpdatePasswordRequest;
 
 public interface ConfirmationCodeService {
 

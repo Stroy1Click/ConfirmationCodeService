@@ -10,11 +10,11 @@ import org.springframework.context.MessageSource;
 import ru.stroy1click.confirmationcode.client.AuthClient;
 import ru.stroy1click.confirmationcode.client.EmailClient;
 import ru.stroy1click.confirmationcode.client.UserClient;
-import ru.stroy1click.confirmationcode.dto.UserDto;
+import ru.stroy1click.confirmationcode.dto.*;
 import ru.stroy1click.confirmationcode.entity.ConfirmationCode;
+import ru.stroy1click.confirmationcode.entity.Type;
 import ru.stroy1click.confirmationcode.exception.NotFoundException;
 import ru.stroy1click.confirmationcode.exception.ValidationException;
-import ru.stroy1click.confirmationcode.model.*;
 import ru.stroy1click.confirmationcode.repository.ConfirmationCodeRepository;
 import ru.stroy1click.confirmationcode.service.JwtService;
 import ru.stroy1click.confirmationcode.service.impl.ConfirmationCodeServiceImpl;
@@ -47,8 +47,6 @@ class ConfirmationCodeTest {
     @Mock
     private JwtService jwtService;
 
-    @Spy
-    private Random random = new Random();
 
     @InjectMocks
     private ConfirmationCodeServiceImpl confirmationCodeService;

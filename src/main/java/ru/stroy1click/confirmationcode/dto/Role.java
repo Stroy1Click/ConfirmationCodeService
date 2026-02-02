@@ -1,4 +1,4 @@
-package ru.stroy1click.confirmationcode.model;
+package ru.stroy1click.confirmationcode.dto;
 
 public enum Role {
 

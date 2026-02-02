@@ -1,4 +1,4 @@
-package ru.stroy1click.confirmationcode.model;
+package ru.stroy1click.confirmationcode.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

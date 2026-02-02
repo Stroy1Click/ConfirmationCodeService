@@ -3,7 +3,7 @@ package ru.stroy1click.confirmationcode.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.stroy1click.confirmationcode.entity.ConfirmationCode;
-import ru.stroy1click.confirmationcode.model.Type;
+import ru.stroy1click.confirmationcode.entity.Type;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +18,4 @@ public interface ConfirmationCodeRepository extends JpaRepository<ConfirmationCo
     Integer countByTypeAndUserEmail(Type type, String userEmail);
 
     void deleteByCode(Integer code);
-
-    List<ConfirmationCode> findAllByUserEmail(String userEmail);
-
 }

@@ -1,6 +1,6 @@
 package ru.stroy1click.confirmationcode.client;
 
-import ru.stroy1click.confirmationcode.model.SendEmailRequest;
+import ru.stroy1click.confirmationcode.dto.SendEmailRequest;
 
 public interface EmailClient {
 

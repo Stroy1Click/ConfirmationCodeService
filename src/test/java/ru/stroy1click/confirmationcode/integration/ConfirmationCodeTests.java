@@ -14,8 +14,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.stroy1click.confirmationcode.client.AuthClient;
 import ru.stroy1click.confirmationcode.client.EmailClient;
 import ru.stroy1click.confirmationcode.client.UserClient;
-import ru.stroy1click.confirmationcode.dto.UserDto;
-import ru.stroy1click.confirmationcode.model.*;
+import ru.stroy1click.confirmationcode.dto.*;
+import ru.stroy1click.confirmationcode.entity.Type;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;

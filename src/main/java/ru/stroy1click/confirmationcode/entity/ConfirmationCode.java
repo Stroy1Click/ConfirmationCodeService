@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.stroy1click.confirmationcode.model.Type;
 
 import java.time.LocalDateTime;
 
