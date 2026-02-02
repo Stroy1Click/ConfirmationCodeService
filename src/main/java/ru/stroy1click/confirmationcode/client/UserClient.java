@@ -1,8 +1,8 @@
 package ru.stroy1click.confirmationcode.client;
 
 import ru.stroy1click.confirmationcode.dto.UserDto;
-import ru.stroy1click.confirmationcode.model.ConfirmEmailRequest;
-import ru.stroy1click.confirmationcode.model.UserServiceUpdatePasswordRequest;
+import ru.stroy1click.confirmationcode.dto.ConfirmEmailRequest;
+import ru.stroy1click.confirmationcode.dto.UserServiceUpdatePasswordRequest;
 
 public interface UserClient {
 

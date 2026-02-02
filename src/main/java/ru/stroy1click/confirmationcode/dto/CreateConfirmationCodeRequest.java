@@ -1,4 +1,4 @@
-package ru.stroy1click.confirmationcode.model;
+package ru.stroy1click.confirmationcode.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import ru.stroy1click.confirmationcode.entity.Type;
 
 @Data
 @AllArgsConstructor

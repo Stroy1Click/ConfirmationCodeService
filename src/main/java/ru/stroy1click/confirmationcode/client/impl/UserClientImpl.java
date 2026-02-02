@@ -2,7 +2,6 @@ package ru.stroy1click.confirmationcode.client.impl;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.web.client.ResourceAccessException;
-import ru.stroy1click.confirmationcode.exception.ServiceErrorResponseException;
 import ru.stroy1click.confirmationcode.exception.ServiceUnavailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import ru.stroy1click.confirmationcode.client.UserClient;
 import ru.stroy1click.confirmationcode.dto.UserDto;
-import ru.stroy1click.confirmationcode.exception.NotFoundException;
-import ru.stroy1click.confirmationcode.model.ConfirmEmailRequest;
-import ru.stroy1click.confirmationcode.model.UserServiceUpdatePasswordRequest;
+import ru.stroy1click.confirmationcode.dto.ConfirmEmailRequest;
+import ru.stroy1click.confirmationcode.dto.UserServiceUpdatePasswordRequest;
 import ru.stroy1click.confirmationcode.util.ValidationErrorUtils;
 
 @Slf4j

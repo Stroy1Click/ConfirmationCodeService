@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ru.stroy1click</groupId>
-    <artifactId>Stroy1Click-ConfirmationCodeService</artifactId>
+    <artifactId>confirmation-code-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Stroy1Click - ConfirmationCodeService</name>
-    <description>Stroy1Click - ConfirmationCodeService</description>
+    <name>ConfirmationCodeService</name>
+    <description>Сервис для работы с кодами подтверждения</description>
     <url/>
     <licenses>
         <license/>
