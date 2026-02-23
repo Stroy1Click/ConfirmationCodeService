@@ -9,12 +9,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.stroy1click.confirmationcode.exception.ValidationException;
+import ru.stroy1click.common.exception.ValidationException;
 import ru.stroy1click.confirmationcode.dto.CodeVerificationRequest;
 import ru.stroy1click.confirmationcode.dto.CreateConfirmationCodeRequest;
 import ru.stroy1click.confirmationcode.dto.UpdatePasswordRequest;
 import ru.stroy1click.confirmationcode.service.ConfirmationCodeService;
-import ru.stroy1click.confirmationcode.util.ValidationErrorUtils;
+import ru.stroy1click.common.util.ValidationErrorUtils;
 
 import java.util.Locale;
 

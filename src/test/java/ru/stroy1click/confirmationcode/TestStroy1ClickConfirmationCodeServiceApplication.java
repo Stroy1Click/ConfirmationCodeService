@@ -1,7 +1,7 @@
-package ru.stroy1click.confirmationcode.integration;
+package ru.stroy1click.confirmationcode;
 
 import org.springframework.boot.SpringApplication;
-import ru.stroy1click.confirmationcode.Stroy1ClickConfirmationCodeServiceApplication;
+import ru.stroy1click.confirmationcode.config.TestcontainersConfiguration;
 
 public class TestStroy1ClickConfirmationCodeServiceApplication {
 

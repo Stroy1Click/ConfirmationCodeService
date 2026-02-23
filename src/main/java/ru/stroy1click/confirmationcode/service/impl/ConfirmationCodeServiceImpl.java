@@ -5,17 +5,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.stroy1click.confirmationcode.client.AuthClient;
-import ru.stroy1click.confirmationcode.client.EmailClient;
+import ru.stroy1click.common.command.ConfirmEmailCommand;
+import ru.stroy1click.common.command.LogoutOnAllDevicesCommand;
+import ru.stroy1click.common.command.SendEmailCommand;
+import ru.stroy1click.common.command.UpdatePasswordCommand;
+import ru.stroy1click.common.exception.NotFoundException;
+import ru.stroy1click.common.exception.ValidationException;
 import ru.stroy1click.confirmationcode.client.UserClient;
-import ru.stroy1click.confirmationcode.dto.*;
+import ru.stroy1click.confirmationcode.dto.CodeVerificationRequest;
+import ru.stroy1click.confirmationcode.dto.CreateConfirmationCodeRequest;
+import ru.stroy1click.confirmationcode.dto.UpdatePasswordRequest;
+import ru.stroy1click.confirmationcode.dto.UserDto;
 import ru.stroy1click.confirmationcode.entity.ConfirmationCode;
 import ru.stroy1click.confirmationcode.entity.Type;
-import ru.stroy1click.confirmationcode.exception.NotFoundException;
-import ru.stroy1click.confirmationcode.exception.ValidationException;
 import ru.stroy1click.confirmationcode.repository.ConfirmationCodeRepository;
 import ru.stroy1click.confirmationcode.service.ConfirmationCodeService;
-import ru.stroy1click.confirmationcode.service.JwtService;
+import ru.stroy1click.outbox.service.OutboxEventService;
 
 import java.time.LocalDateTime;
 import java.util.Locale;
@@ -30,19 +35,21 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
 
     private final ConfirmationCodeRepository confirmationCodeRepository;
 
-    private final AuthClient authClient;
-
     private final UserClient userClient;
 
     private final static Integer EXPIRATION = 24;
 
-    private final Random random = new Random();
-
     private final MessageSource messageSource;
 
-    private final EmailClient emailClient;
+    private final OutboxEventService outboxEventService;
 
-    private final JwtService jwtService;
+    private final static String SEND_EMAIL_TOPIC = "send-email-commands";
+
+    private final static String CONFIRM_EMAIL_TOPIC = "confirm-email-commands";
+
+    private final static String LOGOUT_ON_ALL_DEVICES_TOPIC = "logout-on-all-devices-commands";
+
+    private final static String UPDATE_PASSWORD_TOPIC = "update-password-commands";
 
     /**
      * Метод создает новый код подтверждения для пользователя.
@@ -52,6 +59,7 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
      * Метод сохраняет код подтверждения в бд и отправляет в email-service запрос на отправку электронного письма.
      */
     @Override
+    @Transactional
     public void create(CreateConfirmationCodeRequest codeRequest) {
         UserDto user = this.userClient.getByEmail(codeRequest.getEmail());
 
@@ -70,11 +78,18 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
         checkTheEmailConfirmation(user, codeRequest);
 
         ConfirmationCode confirmationCode = this.confirmationCodeRepository.save(new ConfirmationCode(
-                null, this.random.nextInt(1_000_000, 9_999_999),LocalDateTime.now().plusHours(EXPIRATION),
+                null, new Random().nextInt(1_000_000, 9_999_999),LocalDateTime.now().plusHours(EXPIRATION),
                 codeRequest.getConfirmationCodeType(), user.getEmail()
         ));
 
-        sendEmail(confirmationCode.getCode(), user);
+        this.outboxEventService.save(SEND_EMAIL_TOPIC,
+                SendEmailCommand.builder()
+                .code(confirmationCode.getCode())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build()
+        );
     }
 
     /**
@@ -106,11 +121,18 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
         checkTheEmailConfirmation(user, codeRequest);
 
         ConfirmationCode confirmationCode = this.confirmationCodeRepository.save(new ConfirmationCode(
-                null, this.random.nextInt(1_000_000, 9_999_999), LocalDateTime.now().plusHours(EXPIRATION),
+                null, new Random().nextInt(1_000_000, 9_999_999), LocalDateTime.now().plusHours(EXPIRATION),
                 codeRequest.getConfirmationCodeType(), user.getEmail()
         ));
 
-        sendEmail(confirmationCode.getCode(), user);
+        this.outboxEventService.save(SEND_EMAIL_TOPIC,
+                SendEmailCommand.builder()
+                        .code(confirmationCode.getCode())
+                        .email(user.getEmail())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .build()
+        );
     }
 
     /**
@@ -131,8 +153,10 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
                 ));
 
         if(Objects.equals(confirmationCode.getCode(), codeRequest.getCode()) && LocalDateTime.now().isBefore(confirmationCode.getExpirationDate())){
-            this.userClient.updateEmailConfirmedStatus(new ConfirmEmailRequest(codeRequest.getEmail()));
             this.confirmationCodeRepository.deleteById(confirmationCode.getId());
+
+            this.outboxEventService.save(CONFIRM_EMAIL_TOPIC,
+                    new ConfirmEmailCommand(codeRequest.getEmail()));
         } else {
             throw new ValidationException(
                     this.messageSource.getMessage(
@@ -183,10 +207,11 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
         }
 
         this.confirmationCodeRepository.deleteByCode(confirmationCode.getCode());
-        this.authClient.logoutOnAllDevices(passwordRequest.getCodeVerificationRequest().getEmail(),
-                this.jwtService.generateToken());
-        this.userClient.updatePassword(new UserServiceUpdatePasswordRequest(passwordRequest.getNewPassword(),
-                passwordRequest.getCodeVerificationRequest().getEmail()));
+
+        this.outboxEventService.save(LOGOUT_ON_ALL_DEVICES_TOPIC,
+                new LogoutOnAllDevicesCommand(passwordRequest.getCodeVerificationRequest().getEmail()));
+        this.outboxEventService.save(UPDATE_PASSWORD_TOPIC,
+                new UpdatePasswordCommand(passwordRequest.getNewPassword(), passwordRequest.getCodeVerificationRequest().getEmail()));
     }
 
       /**
@@ -229,10 +254,5 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
             );
         }
         return count;
-    }
-
-    private void sendEmail(Integer code, UserDto user){
-        SendEmailRequest sendEmailRequest = new SendEmailRequest(code, user);
-        this.emailClient.sendEmail(sendEmailRequest);
     }
 }

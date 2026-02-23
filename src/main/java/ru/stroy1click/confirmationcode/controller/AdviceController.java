@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.stroy1click.confirmationcode.exception.*;
+import ru.stroy1click.common.exception.*;
 
 import java.util.Locale;
 
