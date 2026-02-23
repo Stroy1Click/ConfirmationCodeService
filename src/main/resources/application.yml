@@ -30,6 +30,19 @@ spring:
   messages:
     basename: messages
     encoding: UTF-8
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        acks: all
+        enable.idempotence: true
+        delivery.timeout.ms: 120000
+        linger.ms: 0
+        request.timeout.ms: 30000
+        max.in.flight.requests.per.connection: 4
+        spring.json.add.type.headers: true
 
 otel:
   service:
@@ -59,18 +72,6 @@ resilience4j:
         limitRefreshPeriod: 1s
   circuitbreaker:
     instances:
-      authClient:
-        registerHealthIndicator: true
-        slidingWindowType: COUNT_BASED
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        failureRateThreshold: 50
-        waitDurationInOpenState: 120s
-        permittedNumberOfCallsInHalfOpenState: 3
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        ignore-exceptions:
-          - ru.stroy1click.confirmationcode.exception.NotFoundException
-          - ru.stroy1click.confirmationcode.exception.ValidationException
       userClient:
         registerHealthIndicator: true
         slidingWindowType: COUNT_BASED
@@ -81,20 +82,8 @@ resilience4j:
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
         ignore-exceptions:
-          - ru.stroy1click.confirmationcode.exception.NotFoundException
-          - ru.stroy1click.confirmationcode.exception.ValidationException
-      emailClient:
-        registerHealthIndicator: true
-        slidingWindowType: COUNT_BASED
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        failureRateThreshold: 50
-        waitDurationInOpenState: 120s
-        permittedNumberOfCallsInHalfOpenState: 3
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        ignore-exceptions:
-          - ru.stroy1click.confirmationcode.exception.NotFoundException
-          - ru.stroy1click.confirmationcode.exception.ValidationException
+          - ru.stroy1click.common.exception.NotFoundException
+          - ru.stroy1click.common.exception.ValidationException
 
 management:
   health:
@@ -109,9 +98,7 @@ management:
       show-details: always
 
 url:
-  auth: http://localhost:9090/api/v1/auth
   user: http://localhost:8080/api/v1/users
-  email: http://localhost:5050/api/v1/emails
 
 jwt:
   secret: 5367566B5970337336762342342342341139792F4123F452811482B4D6251655468576D5A71347437

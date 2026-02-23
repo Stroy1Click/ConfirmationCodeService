@@ -7,26 +7,26 @@ create table if not exists confirmation_code.confirmation_codes(
                                                                    type varchar not null ,
                                                                    user_email varchar not null
 );
--- Test: ConfirmationCodeIntegrationTests confirmEmail_ValidCode_ConfirmsEmail()
+-- Test: ConfirmationCodeControllerIT confirmEmail_ValidCode_ConfirmsEmail()
 -- Description: подтверждение почты
 insert into confirmation_code.confirmation_codes(code, expiration_date, type, user_email) values (1234567, '2029-06-15 14:30:45.123456', 'EMAIL','jeffbezos@gmail.com');
 
--- Test: ConfirmationCodeIntegrationTests recreate_ExistingCode_RegeneratesConfirmationCode()
+-- Test: ConfirmationCodeControllerIT recreate_ExistingCode_RegeneratesConfirmationCode()
 -- Description: пересоздание кода подтверждения
 insert into confirmation_code.confirmation_codes(code, expiration_date, type, user_email) values (1234567, '2029-06-15 14:30:45.123456', 'EMAIL','donaldtrump@gmail.com');
 
--- Test: ConfirmationCodeIntegrationTests updatePassword_ValidCodeAndPasswords_UpdatesPassword()
+-- Test: ConfirmationCodeControllerIT updatePassword_ValidCodeAndPasswords_UpdatesPassword()
 -- Description: обновление пароля
 insert into confirmation_code.confirmation_codes(code, expiration_date, type, user_email) values (1234567, '2029-06-15 14:30:45.123456', 'PASSWORD','paveldurovtg@gmail.com');
 
--- Test: ConfirmationCodeIntegrationTests create_InvalidEmail_ReturnsValidationError()
+-- Test: ConfirmationCodeControllerIT create_InvalidEmail_ReturnsValidationError()
 -- Description: попытка подтвердить почту с неверным кодом подтверждения
 insert into confirmation_code.confirmation_codes(code, expiration_date, type, user_email) values (1234567, '2029-06-15 14:30:45.123456', 'EMAIL','johnkennedy@gmail.com');
 
--- Test: ConfirmationCodeIntegrationTests confirmEmail_InvalidCode_ReturnsError()
+-- Test: ConfirmationCodeControllerIT confirmEmail_InvalidCode_ReturnsError()
 -- Description: попытка обновить пароль с неверным кодом подтверждения
 insert into confirmation_code.confirmation_codes(code, expiration_date, type, user_email) values (1234567, '2029-06-15 14:30:45.123456', 'EMAIL','tomholland@gmail.com');
 
--- Test: ConfirmationCodeIntegrationTests updatePassword_PasswordsDoNotMatch_ReturnsError()
+-- Test: ConfirmationCodeControllerIT updatePassword_PasswordsDoNotMatch_ReturnsError()
 -- Description: попытка обновить пароль при разных паролях(newPassword != confirmPassword)
-insert into confirmation_code.confirmation_codes(code, expiration_date, type, user_email) values (1234567, '2029-06-15 14:30:45.123456', 'EMAIL','ryangosling@gmail.com');
+insert into confirmation_code.confirmation_codes(code, expiration_date, type, user_email) values (1234567, '2029-06-15 14:30:45.123456', 'PASSWORD','ryangosling@gmail.com');
