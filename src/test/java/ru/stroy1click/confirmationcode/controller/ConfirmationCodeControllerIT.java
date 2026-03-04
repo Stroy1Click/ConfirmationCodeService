@@ -42,7 +42,7 @@ class ConfirmationCodeControllerIT {
                 .email("rayan_thompson@gmail.com")
                 .password("$2a$12$5AvRdljjFvz1gJtVioGOJ./tAV8KHjln/fvKjrRXMAUxxqjYN4Vpi")
                 .role(Role.ROLE_USER)
-                .emailConfirmed(false)
+                .isEmailConfirmed(false)
                 .build();
         HttpEntity<CreateConfirmationCodeRequest> httpEntity = new HttpEntity<>(new CreateConfirmationCodeRequest(Type.EMAIL,
                 "rayan_thompson@gmail.com"));
@@ -72,7 +72,7 @@ class ConfirmationCodeControllerIT {
                 .email("jeffbezos@gmail.com")
                 .password("$2a$12$5AvRdljjFvz1gJtVioGOJ./tAV8KHjln/fvKjrRXMAUxxqjYN4Vpi")
                 .role(Role.ROLE_USER)
-                .emailConfirmed(false)
+                .isEmailConfirmed(false)
                 .build();
         HttpEntity<CodeVerificationRequest> httpEntity = new HttpEntity<>(new CodeVerificationRequest("jeffbezos@gmail.com", 1_234_567));
         when(this.userClient.getByEmail("jeffbezos@gmail.com")).thenReturn(userDto);
@@ -101,7 +101,7 @@ class ConfirmationCodeControllerIT {
                 .email("donaldtrump@gmail.com")
                 .password("$2a$12$5AvRdljjFvz1gJtVioGOJ./tAV8KHjln/fvKjrRXMAUxxqjYN4Vpi")
                 .role(Role.ROLE_USER)
-                .emailConfirmed(false)
+                .isEmailConfirmed(false)
                 .build();
         HttpEntity<CreateConfirmationCodeRequest> httpEntity = new HttpEntity<>(new CreateConfirmationCodeRequest(Type.EMAIL,
                 "donaldtrump@gmail.com"));
@@ -131,7 +131,7 @@ class ConfirmationCodeControllerIT {
                 .email("paveldurovtg@gmail.com")
                 .password("$2a$12$5AvRdljjFvz1gJtVioGOJ./tAV8KHjln/fvKjrRXMAUxxqjYN4Vpi")
                 .role(Role.ROLE_USER)
-                .emailConfirmed(false)
+                .isEmailConfirmed(false)
                 .build();
         HttpEntity<UpdatePasswordRequest> httpEntity = new HttpEntity<>(new UpdatePasswordRequest("12345678", "12345678",
                 new CodeVerificationRequest("paveldurovtg@gmail.com", 1_234_567)));
@@ -177,7 +177,7 @@ class ConfirmationCodeControllerIT {
                 .email("tobymacgyver@gmail.com")
                 .password("$2a$12$5AvRdljjFvz1gJtVioGOJ./tAV8KHjln/fvKjrRXMAUxxqjYN4Vpi")
                 .role(Role.ROLE_USER)
-                .emailConfirmed(false)
+                .isEmailConfirmed(false)
                 .build();
         HttpEntity<CreateConfirmationCodeRequest> httpEntity = new HttpEntity<>(new CreateConfirmationCodeRequest(Type.EMAIL,
                 "tobymacgyver@gmail.com"));
@@ -193,6 +193,7 @@ class ConfirmationCodeControllerIT {
 
         //Assert
         assertTrue(responseEntity.getStatusCode().is4xxClientError());
+        Assertions.assertNotNull(responseEntity.getBody());
         assertEquals("Вы не можете пересоздать код подтверждения, так как код не был ещё создан. Создайте код подтверждения",
                 responseEntity.getBody().getDetail());
     }
@@ -207,7 +208,7 @@ class ConfirmationCodeControllerIT {
                 .email("ryangosling@gmail.com")
                 .password("$2a$12$5AvRdljjFvz1gJtVioGOJ./tAV8KHjln/fvKjrRXMAUxxqjYN4Vpi")
                 .role(Role.ROLE_USER)
-                .emailConfirmed(false)
+                .isEmailConfirmed(false)
                 .build();
         HttpEntity<UpdatePasswordRequest> httpEntity = new HttpEntity<>(new UpdatePasswordRequest("12345678", "87654321",
                 new CodeVerificationRequest("ryangosling@gmail.com", 1_234_567)));

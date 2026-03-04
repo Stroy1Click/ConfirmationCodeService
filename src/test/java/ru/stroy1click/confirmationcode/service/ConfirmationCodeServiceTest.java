@@ -66,7 +66,7 @@ class ConfirmationCodeServiceTest {
                 .email("john.doe@example.com")
                 .password("encoded_password")
                 .role(Role.ROLE_USER)
-                .emailConfirmed(false)
+                .isEmailConfirmed(false)
                 .build();
     }
 
@@ -110,7 +110,7 @@ class ConfirmationCodeServiceTest {
     @Test
     void create_WhenEmailAlreadyConfirmed_ShouldThrowValidationException() {
         //Arrange
-        this.userDto.setEmailConfirmed(true);
+        this.userDto.setIsEmailConfirmed(true);
         CreateConfirmationCodeRequest request = new CreateConfirmationCodeRequest(Type.EMAIL, "john.doe@example.com");
         when(this.userClient.getByEmail("john.doe@example.com")).thenReturn(this.userDto);
         when(this.messageSource.getMessage(eq("error.email.already_confirmed"), any(), any()))
