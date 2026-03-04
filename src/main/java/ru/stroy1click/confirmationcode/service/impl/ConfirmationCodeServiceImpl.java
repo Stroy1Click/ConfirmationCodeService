@@ -222,7 +222,7 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
     * @param codeRequest запрос с типом кода подтверждения.
     */
     private void checkTheEmailConfirmation(UserDto user, CreateConfirmationCodeRequest codeRequest){
-        if(user.getEmailConfirmed() && codeRequest.getConfirmationCodeType() == Type.EMAIL){
+        if(user.getIsEmailConfirmed() && codeRequest.getConfirmationCodeType() == Type.EMAIL){
             throw new ValidationException(
                     this.messageSource.getMessage(
                             "error.email.already_confirmed",

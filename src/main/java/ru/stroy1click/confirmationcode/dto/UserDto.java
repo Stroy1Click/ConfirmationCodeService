@@ -35,7 +35,7 @@ public class UserDto {
     private String password;
 
     @NotNull(message = "{validation.userdto.email_confirmed.not_null}")
-    private Boolean emailConfirmed;
+    private Boolean isEmailConfirmed;
 
     @NotNull(message = "{validation.userdto.role.not_null}")
     private Role role;
