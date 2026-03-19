@@ -3,14 +3,14 @@ package ru.stroy1click.confirmationcode.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.stroy1click.common.command.ConfirmEmailCommand;
 import ru.stroy1click.common.command.LogoutOnAllDevicesCommand;
 import ru.stroy1click.common.command.SendEmailCommand;
 import ru.stroy1click.common.command.UpdatePasswordCommand;
-import ru.stroy1click.common.exception.NotFoundException;
-import ru.stroy1click.common.exception.ValidationException;
+import ru.stroy1click.common.util.ExceptionUtils;
 import ru.stroy1click.confirmationcode.client.UserClient;
 import ru.stroy1click.confirmationcode.dto.CodeVerificationRequest;
 import ru.stroy1click.confirmationcode.dto.CreateConfirmationCodeRequest;
@@ -23,7 +23,6 @@ import ru.stroy1click.confirmationcode.service.ConfirmationCodeService;
 import ru.stroy1click.outbox.service.OutboxEventService;
 
 import java.time.LocalDateTime;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 
@@ -36,6 +35,8 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
     private final ConfirmationCodeRepository confirmationCodeRepository;
 
     private final UserClient userClient;
+
+    private final PasswordEncoder passwordEncoder;
 
     private final static Integer EXPIRATION = 24;
 
@@ -66,13 +67,7 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
         Integer countOfConfirmationCode = countCodesByTypeAndUser(user.getEmail(), codeRequest);
 
         if(countOfConfirmationCode >= 1){ //The capacities allow you to send only 1 email
-            throw new ValidationException(
-                    this.messageSource.getMessage(
-                            "error.confirmation_code.already_sent",
-                            null,
-                            Locale.getDefault()
-                    )
-            );
+            throw ExceptionUtils.validationException("error.confirmation_code.already_sent", null);
         }
 
         checkTheEmailConfirmation(user, codeRequest);
@@ -107,13 +102,7 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
         Integer countOfConfirmationCode = countCodesByTypeAndUser(user.getEmail(), codeRequest);
 
         if(countOfConfirmationCode  == 0){ //не можем пересоздать код подтверждения, если его даже не было никогда
-            throw new ValidationException(
-                    this.messageSource.getMessage(
-                            "error.confirmation_code.recreate_failed",
-                            null,
-                            Locale.getDefault()
-                    )
-            );
+            throw ExceptionUtils.validationException("error.confirmation_code.recreate_failed", null);
         }
 
         this.confirmationCodeRepository.deleteByTypeAndUserEmail(codeRequest.getConfirmationCodeType(), user.getEmail());
@@ -144,13 +133,7 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
     @Override
     public void verifyEmail(CodeVerificationRequest codeRequest) {
         ConfirmationCode confirmationCode = this.confirmationCodeRepository.findByTypeAndUserEmail(Type.EMAIL, codeRequest.getEmail())
-                .orElseThrow(() -> new NotFoundException(
-                        this.messageSource.getMessage(
-                                "error.confirmation_code.not_found",
-                                null,
-                                Locale.getDefault()
-                        )
-                ));
+                .orElseThrow(() -> ExceptionUtils.notFound("error.confirmation_code.not_found", null));
 
         if(Objects.equals(confirmationCode.getCode(), codeRequest.getCode()) && LocalDateTime.now().isBefore(confirmationCode.getExpirationDate())){
             this.confirmationCodeRepository.deleteById(confirmationCode.getId());
@@ -158,13 +141,7 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
             this.outboxEventService.save(CONFIRM_EMAIL_TOPIC,
                     new ConfirmEmailCommand(codeRequest.getEmail()));
         } else {
-            throw new ValidationException(
-                    this.messageSource.getMessage(
-                            "error.confirmation_code.not_valid",
-                            null,
-                            Locale.getDefault()
-                    )
-            );
+            throw ExceptionUtils.validationException("error.confirmation_code.not_valid", null);
         }
     }
 
@@ -180,38 +157,23 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
     public void updatePassword(UpdatePasswordRequest passwordRequest) {
         ConfirmationCode confirmationCode =  this.confirmationCodeRepository.findByTypeAndUserEmail(Type.PASSWORD,
                         passwordRequest.getCodeVerificationRequest().getEmail())
-                .orElseThrow(() -> new NotFoundException(this.messageSource.getMessage(
-                        "error.confirmation_code.not_found",
-                        null,
-                        Locale.getDefault()
-                )));
+                .orElseThrow(() -> ExceptionUtils.notFound("error.confirmation_code.not_found", null));
 
         if(!Objects.equals(confirmationCode.getCode(), passwordRequest.getCodeVerificationRequest().getCode()) ||
                 LocalDateTime.now().isAfter(confirmationCode.getExpirationDate())){
-            throw new ValidationException(
-                    this.messageSource.getMessage(
-                            "error.confirmation_code.not_valid",
-                            null,
-                            Locale.getDefault()
-                    )
-            );
+            throw ExceptionUtils.validationException("error.confirmation_code.not_valid", null);
         }
         if(!Objects.equals(passwordRequest.getNewPassword(), passwordRequest.getConfirmPassword())){
-            throw new ValidationException(
-                    this.messageSource.getMessage(
-                            "error.password.not_match",
-                            null,
-                            Locale.getDefault()
-                    )
-            );
+            throw ExceptionUtils.validationException("error.password.not_match", null);
         }
 
         this.confirmationCodeRepository.deleteByCode(confirmationCode.getCode());
 
         this.outboxEventService.save(LOGOUT_ON_ALL_DEVICES_TOPIC,
                 new LogoutOnAllDevicesCommand(passwordRequest.getCodeVerificationRequest().getEmail()));
+        String encodedNewPassword = this.passwordEncoder.encode(passwordRequest.getNewPassword());
         this.outboxEventService.save(UPDATE_PASSWORD_TOPIC,
-                new UpdatePasswordCommand(passwordRequest.getNewPassword(), passwordRequest.getCodeVerificationRequest().getEmail()));
+                new UpdatePasswordCommand(encodedNewPassword, passwordRequest.getCodeVerificationRequest().getEmail()));
     }
 
       /**
@@ -221,15 +183,9 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
     * @param user пользователь для проверки.
     * @param codeRequest запрос с типом кода подтверждения.
     */
-    private void checkTheEmailConfirmation(UserDto user, CreateConfirmationCodeRequest codeRequest){
+    private void checkTheEmailConfirmation(UserDto user, CreateConfirmationCodeRequest codeRequest) {
         if(user.getIsEmailConfirmed() && codeRequest.getConfirmationCodeType() == Type.EMAIL){
-            throw new ValidationException(
-                    this.messageSource.getMessage(
-                            "error.email.already_confirmed",
-                            null,
-                            Locale.getDefault()
-                    )
-            );
+            throw ExceptionUtils.validationException("error.email.already_confirmed", null);
         }
     }
 
@@ -240,18 +196,12 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
     * @param codeRequest запрос с типом кода подтверждения.
     * @return количество кодов подтверждения.
     */
-    private Integer countCodesByTypeAndUser(String email, CreateConfirmationCodeRequest codeRequest){
+    private Integer countCodesByTypeAndUser(String email, CreateConfirmationCodeRequest codeRequest) {
         Integer count = 0;
         switch(codeRequest.getConfirmationCodeType()){
             case EMAIL -> count += this.confirmationCodeRepository.countByTypeAndUserEmail(Type.EMAIL, email);
             case PASSWORD -> count += this.confirmationCodeRepository.countByTypeAndUserEmail(Type.PASSWORD, email);
-            default -> throw new ValidationException(
-                    this.messageSource.getMessage(
-                            "error.confirmation_code.not_valid",
-                            null,
-                            Locale.getDefault()
-                    )
-            );
+            default -> throw ExceptionUtils.validationException("error.confirmation_code.not_valid", null);
         }
         return count;
     }
