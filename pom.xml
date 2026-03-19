@@ -36,6 +36,7 @@
         <docker-maven-plugin.version>0.45.0</docker-maven-plugin.version>
         <common.version>0.0.1-SNAPSHOT</common.version>
         <outbox.core.version>0.0.1-SNAPSHOT</outbox.core.version>
+        <crypto.version>6.5.2</crypto.version>
     </properties>
     <dependencies>
         <dependency>
@@ -53,6 +54,12 @@
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring-boot3</artifactId>
             <version>${resilience4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>${crypto.version}</version>
         </dependency>
 
         <dependency>
