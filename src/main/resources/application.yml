@@ -43,6 +43,9 @@ spring:
         request.timeout.ms: 30000
         max.in.flight.requests.per.connection: 4
         spring.json.add.type.headers: true
+  threads:
+    virtual:
+      enabled: true
 
 otel:
   sdk:
