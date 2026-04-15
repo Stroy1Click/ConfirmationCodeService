@@ -2,7 +2,6 @@ package ru.stroy1click.confirmationcode.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +38,6 @@ public class ConfirmationCodeServiceImpl implements ConfirmationCodeService {
     private final PasswordEncoder passwordEncoder;
 
     private final static Integer EXPIRATION = 24;
-
-    private final MessageSource messageSource;
 
     private final OutboxEventService outboxEventService;
 
